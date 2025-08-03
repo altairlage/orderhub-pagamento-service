@@ -1,0 +1,91 @@
+{
+	"info": {
+		"_postman_id": "7bf06745-c884-4675-a94a-aeb1e4378f71",
+		"name": "OrderHubPagamentoService - Fase 4",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "8464153"
+	},
+	"item": [
+		{
+			"name": "Gerar Ordem de Pagamento",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"nomeCliente\": \"Adamastor\",\r\n    \"emailCliente\": \"email@email.com\",\r\n    \"valorTotalOrdemPagamento\": 150.0,\r\n    \"status\": \"EM_ABERTO\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/pagamentos/gerar",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"pagamentos",
+						"gerar"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Obter Ordem de pagamento Por Id",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/pagamentos/1",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"pagamentos",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Fechar Ordem de pagamento",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"idOrdemPagamento\": 1,\r\n    \"novoStatusPagamento\": \"FECHADO_COM_SUCESSO\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/pagamentos/fechar",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"pagamentos",
+						"fechar"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

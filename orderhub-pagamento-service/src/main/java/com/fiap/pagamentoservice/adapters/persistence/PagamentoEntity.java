@@ -1,6 +1,5 @@
 package com.fiap.pagamentoservice.adapters.persistence;
 
-import br.com.orderhub.core.domain.enums.StatusPagamento;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

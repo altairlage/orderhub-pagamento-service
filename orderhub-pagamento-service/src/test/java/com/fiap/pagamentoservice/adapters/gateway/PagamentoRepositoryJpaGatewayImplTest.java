@@ -86,9 +86,7 @@ class PagamentoRepositoryJpaGatewayImplTest {
 
         when(pagamentoRepository.findById(1L)).thenReturn(Optional.of(entity));
 
-        assertThrows(IllegalArgumentException.class, () -> {
-            gateway.fecharOrdemPagamento(1L, StatusPagamento.FECHADO_COM_SUCESSO);
-        });
+        assertThrows(IllegalArgumentException.class, () -> gateway.fecharOrdemPagamento(1L, StatusPagamento.FECHADO_COM_SUCESSO));
     }
 
     @Test

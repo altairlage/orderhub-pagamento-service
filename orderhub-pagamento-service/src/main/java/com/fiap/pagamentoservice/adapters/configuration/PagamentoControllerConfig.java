@@ -1,4 +1,4 @@
-package com.fiap.pagamento.service.configuration;
+package com.fiap.pagamentoservice.adapters.configuration;
 
 import br.com.orderhub.core.controller.PagamentoController;
 import br.com.orderhub.core.interfaces.IPagamentoGateway;

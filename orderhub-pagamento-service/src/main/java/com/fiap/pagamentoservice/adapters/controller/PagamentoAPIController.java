@@ -1,14 +1,16 @@
-package com.fiap.pagamento.service.controller;
+package com.fiap.pagamentoservice.adapters.controller;
 
 import br.com.orderhub.core.controller.PagamentoController;
 import br.com.orderhub.core.domain.enums.StatusPagamento;
-import br.com.orderhub.core.dto.clientes.ClienteDTO;
+import br.com.orderhub.core.dto.pagamentos.CriarPagamentoDTO;
 import br.com.orderhub.core.dto.pagamentos.PagamentoDTO;
 import br.com.orderhub.core.exceptions.OrdemPagamentoNaoEncontradaException;
+import com.fiap.pagamentoservice.adapters.dto.FecharPagamentoDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@RestController("/pagamentos")
+@RestController
+@RequestMapping("/pagamentos")
 public class PagamentoAPIController {
     private final PagamentoController pagamentoController;
 
@@ -29,14 +31,21 @@ public class PagamentoAPIController {
     }
 
     @PostMapping("/gerar")
-    public ResponseEntity<PagamentoDTO> gerarPagamento(@RequestBody ClienteDTO clienteDTO){
-        return ResponseEntity.ok(pagamentoController.gerarOrdemPagamento(clienteDTO));
+    public ResponseEntity<PagamentoDTO> gerarPagamento(@RequestBody CriarPagamentoDTO criarPagamentoDTO) throws Exception {
+        return ResponseEntity.ok(pagamentoController.gerarOrdemPagamento(criarPagamentoDTO));
     }
 
     @PostMapping("/fechar")
-    public ResponseEntity<PagamentoDTO> fecharPagamento(@RequestBody Long id, @RequestBody StatusPagamento novoStatus){
+    public ResponseEntity<PagamentoDTO> fecharPagamento(@RequestBody FecharPagamentoDTO fecharPagamentoDTO){
         try{
-            return ResponseEntity.ok(pagamentoController.fecharOrdemPagamento(id, novoStatus));
+            StatusPagamento statusPagamento = switch (fecharPagamentoDTO.novoStatusPagamento()) {
+                case "EM_ABERTO" -> StatusPagamento.EM_ABERTO;
+                case "FECHADO_COM_SUCESSO" -> StatusPagamento.FECHADO_COM_SUCESSO;
+                case "FECHADO_FALHA_PAGAMENTO" -> StatusPagamento.FECHADO_FALHA_PAGAMENTO;
+                default -> throw new IllegalArgumentException("Status de pagamento invalido");
+            };
+
+            return ResponseEntity.ok(pagamentoController.fecharOrdemPagamento(fecharPagamentoDTO.idOrdemPagamento(), statusPagamento));
         } catch (OrdemPagamentoNaoEncontradaException exception){
             System.out.println(exception.getMessage());
             return ResponseEntity.notFound().build();

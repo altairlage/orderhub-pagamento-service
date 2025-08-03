@@ -1,4 +1,4 @@
-package com.fiap.pagamento.service.adapters.api.handler;
+package com.fiap.pagamentoservice.adapters.api.handler;
 
 import br.com.orderhub.core.exceptions.OrderhubException;
 import org.springframework.http.HttpStatus;
@@ -11,12 +11,8 @@ public class OrderhubExceptionHandler {
 
     @ExceptionHandler(OrderhubException.class)
     public ResponseEntity<String> handleOrderhubException(OrderhubException ex) {
-        if (ex instanceof br.com.orderhub.core.exceptions.ProdutoNaoEncontradoException) {
+        if (ex instanceof br.com.orderhub.core.exceptions.OrdemPagamentoNaoEncontradaException) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
-        }
-
-        if (ex instanceof br.com.orderhub.core.exceptions.ProdutoJaExisteException) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
         }

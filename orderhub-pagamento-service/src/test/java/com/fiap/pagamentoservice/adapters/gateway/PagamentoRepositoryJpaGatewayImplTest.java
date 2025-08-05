@@ -5,6 +5,7 @@ import br.com.orderhub.core.domain.entities.Pagamento;
 import br.com.orderhub.core.domain.enums.StatusPagamento;
 import com.fiap.pagamentoservice.adapters.persistence.PagamentoEntity;
 import com.fiap.pagamentoservice.adapters.persistence.PagamentoRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -15,63 +16,95 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class PagamentoRepositoryJpaGatewayImplTest {
 
+    @InjectMocks
+    private PagamentoRepositoryJpaGatewayImpl pagamentoGateway;
+
     @Mock
     private PagamentoRepository pagamentoRepository;
 
-    @InjectMocks
-    private PagamentoRepositoryJpaGatewayImpl gateway;
+    private Pagamento pagamentoDomain;
+    private PagamentoEntity pagamentoEntity;
 
-    @Test
-    void deveGerarOrdemPagamentoComSucesso() throws Exception {
-        Pagamento pagamento = new Pagamento(1L,"Cliente", "email@email.com", 100.0, StatusPagamento.EM_ABERTO);
-        PagamentoEntity entity = new PagamentoEntity(
+    @BeforeEach
+    void setup() {
+        pagamentoDomain = new Pagamento(
                 1L,
                 1L,
-                "Adamastor",
-                "email@email.com",
-                3999.0,
+                "Jorge",
+                "jorge@email.com",
+                1500.0,
+                StatusPagamento.EM_ABERTO
+        );
+
+        pagamentoEntity = new PagamentoEntity(
+                1L,
+                1L,
+                "Jorge",
+                "jorge@email.com",
+                1500.0,
                 "EM_ABERTO"
         );
-        when(pagamentoRepository.save(any(PagamentoEntity.class))).thenReturn(entity);
-
-        Pagamento resultado = gateway.gerarOrdemPagamento(pagamento);
-
-        assertNotNull(resultado);
-        assertEquals(pagamento.getStatus(), resultado.getStatus());
     }
 
     @Test
-    void deveFecharOrdemPagamentoComSucesso() {
-        Long id = 1L;
-        PagamentoEntity entity = new PagamentoEntity(
-                1L,
-                1L,
-                "Adamastor",
-                "email@email.com",
-                3999.0,
-                "EM_ABERTO"
-        );
-        entity.setStatusPagamento(StatusPagamento.EM_ABERTO.toString());
+    void deveGerarOrdemPagamentoComSucesso() throws Exception {
+        
+        when(pagamentoRepository.save(any())).thenReturn(pagamentoEntity);
 
-        when(pagamentoRepository.findById(id)).thenReturn(Optional.of(entity));
-        when(pagamentoRepository.save(any())).thenReturn(entity);
+        
+        Pagamento result = pagamentoGateway.gerarOrdemPagamento(pagamentoDomain);
 
-        Pagamento resultado = gateway.fecharOrdemPagamento(id, StatusPagamento.FECHADO_COM_SUCESSO);
+        // Assert
+        assertNotNull(result);
+        assertEquals(StatusPagamento.EM_ABERTO, result.getStatus());
+        verify(pagamentoRepository).save(any());
+    }
 
-        assertNotNull(resultado);
-        assertEquals(StatusPagamento.FECHADO_COM_SUCESSO, resultado.getStatus());
+    @Test
+    void deveLancarExcecaoAoFecharPagamentoJaFechado() {
+        
+        pagamentoEntity.setStatusPagamento("FECHADO_COM_SUCESSO");
+        when(pagamentoRepository.findById(1L)).thenReturn(Optional.of(pagamentoEntity));
+
+        
+        assertThrows(IllegalArgumentException.class, () ->
+                pagamentoGateway.fecharOrdemPagamento(1L, StatusPagamento.FECHADO_COM_SUCESSO));
+    }
+
+    @Test
+    void deveRetornarPagamentoPorIdComSucesso() {
+        
+        when(pagamentoRepository.findById(1L)).thenReturn(Optional.of(pagamentoEntity));
+
+        
+        Pagamento result = pagamentoGateway.buscarOrderPagamentoPorId(1L);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(1L, result.getId());
+    }
+
+    @Test
+    void deveRetornarNullQuandoPagamentoNaoEncontrado() throws Exception {
+        
+        when(pagamentoRepository.findById(1L)).thenReturn(Optional.empty());
+
+        
+        Pagamento result = pagamentoGateway.buscarOrderPagamentoPorId(1L);
+
+        assertNull(result);
     }
 
     @Test
     void deveRetornarNull_quandoFecharPagamentoInexistente() {
         when(pagamentoRepository.findById(99L)).thenReturn(Optional.empty());
 
-        Pagamento resultado = gateway.fecharOrdemPagamento(99L, StatusPagamento.FECHADO_COM_SUCESSO);
+        Pagamento resultado = pagamentoGateway.fecharOrdemPagamento(99L, StatusPagamento.FECHADO_COM_SUCESSO);
 
         assertNull(resultado);
     }
@@ -89,7 +122,7 @@ class PagamentoRepositoryJpaGatewayImplTest {
 
         when(pagamentoRepository.findById(1L)).thenReturn(Optional.of(entity));
 
-        assertThrows(IllegalArgumentException.class, () -> gateway.fecharOrdemPagamento(1L, StatusPagamento.FECHADO_COM_SUCESSO));
+        assertThrows(IllegalArgumentException.class, () -> pagamentoGateway.fecharOrdemPagamento(1L, StatusPagamento.FECHADO_COM_SUCESSO));
     }
 
     @Test
@@ -104,9 +137,8 @@ class PagamentoRepositoryJpaGatewayImplTest {
                 "EM_ABERTO"
         );
         when(pagamentoRepository.findById(id)).thenReturn(Optional.of(entity));
-        when(pagamentoRepository.save(entity)).thenReturn(entity);
 
-        Pagamento resultado = gateway.buscarOrderPagamentoPorId(id);
+        Pagamento resultado = pagamentoGateway.buscarOrderPagamentoPorId(id);
 
         assertNotNull(resultado);
         assertEquals(id, resultado.getId());
@@ -116,7 +148,7 @@ class PagamentoRepositoryJpaGatewayImplTest {
     void deveRetornarNull_quandoBuscarPagamentoPorIdInexistente() {
         when(pagamentoRepository.findById(99L)).thenReturn(Optional.empty());
 
-        Pagamento resultado = gateway.buscarOrderPagamentoPorId(99L);
+        Pagamento resultado = pagamentoGateway.buscarOrderPagamentoPorId(99L);
 
         assertNull(resultado);
     }

@@ -2,6 +2,7 @@ package com.fiap.pagamentoservice.adapters.gateway;
 
 import br.com.orderhub.core.domain.entities.Pagamento;
 import br.com.orderhub.core.domain.enums.StatusPagamento;
+import br.com.orderhub.core.dto.pedidos.PedidoDTO;
 import br.com.orderhub.core.exceptions.OrderhubException;
 import br.com.orderhub.core.interfaces.IPagamentoGateway;
 import com.fiap.pagamentoservice.adapters.dto.AtualizarStatusPedidoDTO;
@@ -53,6 +54,7 @@ public class PagamentoRepositoryJpaGatewayImpl implements IPagamentoGateway {
 
         try{
             response = PagamentoEntityMapper.entityToDomain(pagamentoRepository.save(pagamentoEntity));
+            System.out.println("Pagamento salvo com sucesso! Seguindo para atualização de status do Pedido");
             atualizarStatusPedidoService(pagamentoEntity.getIdPedido(), statusPagamento);
         } catch (Exception e){
             throw new OrderhubException("Falha ao salvar pagamento");
@@ -69,21 +71,23 @@ public class PagamentoRepositoryJpaGatewayImpl implements IPagamentoGateway {
             return null;
         }
 
-        PagamentoEntity pagamentoEntity = pagamentoOptional.get();
-
-        return PagamentoEntityMapper.entityToDomain(this.pagamentoRepository.save(pagamentoEntity));
+        return PagamentoEntityMapper.entityToDomain(pagamentoOptional.get());
     }
 
     private void atualizarStatusPedidoService(Long idPedido, StatusPagamento statusPagamento) {
         AtualizarStatusPedidoDTO atualizarStatusPedidoDTO = new AtualizarStatusPedidoDTO(idPedido, statusPagamento);
 
-        WebClient webClient = WebClient.builder()
-                .defaultHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-                .build();
+        WebClient webClient = WebClient.create("http://pedido-service:8080");
 
-        webClient.put()
-                .uri("localhost:8081/pedidos/{id}", idPedido)
-                .body(Mono.just(atualizarStatusPedidoDTO), AtualizarStatusPedidoDTO.class)
-                .retrieve();
+        System.out.println("FAZENDO REQUEST PARA PEDIDO SERVICE");
+
+        PedidoDTO response = webClient.put()
+                .uri("/pedidos/atualizarStatusPedido")
+                .bodyValue(atualizarStatusPedidoDTO)
+                .retrieve()
+                .bodyToMono(PedidoDTO.class)
+                .block();
+
+        System.out.println("RESPOSTA ATUALIZAÇÃO STATUS PEDIDO: "+response);
     }
 }

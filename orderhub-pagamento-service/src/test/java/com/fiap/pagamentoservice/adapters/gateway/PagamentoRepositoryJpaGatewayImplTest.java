@@ -28,8 +28,9 @@ class PagamentoRepositoryJpaGatewayImplTest {
 
     @Test
     void deveGerarOrdemPagamentoComSucesso() throws Exception {
-        Pagamento pagamento = new Pagamento("Cliente", "email@email.com", 100.0, StatusPagamento.EM_ABERTO);
+        Pagamento pagamento = new Pagamento(1L,"Cliente", "email@email.com", 100.0, StatusPagamento.EM_ABERTO);
         PagamentoEntity entity = new PagamentoEntity(
+                1L,
                 1L,
                 "Adamastor",
                 "email@email.com",
@@ -48,6 +49,7 @@ class PagamentoRepositoryJpaGatewayImplTest {
     void deveFecharOrdemPagamentoComSucesso() {
         Long id = 1L;
         PagamentoEntity entity = new PagamentoEntity(
+                1L,
                 1L,
                 "Adamastor",
                 "email@email.com",
@@ -78,6 +80,7 @@ class PagamentoRepositoryJpaGatewayImplTest {
     void deveLancarExcecao_quandoPagamentoJaFechado() {
         PagamentoEntity entity = new PagamentoEntity(
                 1L,
+                1L,
                 "Adamastor",
                 "email@email.com",
                 3999.0,
@@ -93,6 +96,7 @@ class PagamentoRepositoryJpaGatewayImplTest {
     void deveBuscarPagamentoPorIdComSucesso() {
         Long id = 1L;
         PagamentoEntity entity = new PagamentoEntity(
+                1L,
                 1L,
                 "Adamastor",
                 "email@email.com",

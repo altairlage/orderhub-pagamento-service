@@ -2,11 +2,16 @@ package com.fiap.pagamentoservice.adapters.gateway;
 
 import br.com.orderhub.core.domain.entities.Pagamento;
 import br.com.orderhub.core.domain.enums.StatusPagamento;
+import br.com.orderhub.core.exceptions.OrderhubException;
 import br.com.orderhub.core.interfaces.IPagamentoGateway;
+import com.fiap.pagamentoservice.adapters.dto.AtualizarStatusPedidoDTO;
 import com.fiap.pagamentoservice.adapters.mapper.PagamentoEntityMapper;
 import com.fiap.pagamentoservice.adapters.persistence.PagamentoEntity;
 import com.fiap.pagamentoservice.adapters.persistence.PagamentoRepository;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.util.Optional;
 
@@ -44,7 +49,16 @@ public class PagamentoRepositoryJpaGatewayImpl implements IPagamentoGateway {
 
         pagamentoEntity.setStatusPagamento(statusPagamento.toString());
 
-        return PagamentoEntityMapper.entityToDomain(pagamentoRepository.save(pagamentoEntity));
+        Pagamento response;
+
+        try{
+            response = PagamentoEntityMapper.entityToDomain(pagamentoRepository.save(pagamentoEntity));
+            atualizarStatusPedidoService(pagamentoEntity.getIdPedido(), statusPagamento);
+        } catch (Exception e){
+            throw new OrderhubException("Falha ao salvar pagamento");
+        }
+
+        return response;
     }
 
     @Override
@@ -58,5 +72,18 @@ public class PagamentoRepositoryJpaGatewayImpl implements IPagamentoGateway {
         PagamentoEntity pagamentoEntity = pagamentoOptional.get();
 
         return PagamentoEntityMapper.entityToDomain(this.pagamentoRepository.save(pagamentoEntity));
+    }
+
+    private void atualizarStatusPedidoService(Long idPedido, StatusPagamento statusPagamento) {
+        AtualizarStatusPedidoDTO atualizarStatusPedidoDTO = new AtualizarStatusPedidoDTO(idPedido, statusPagamento);
+
+        WebClient webClient = WebClient.builder()
+                .defaultHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                .build();
+
+        webClient.put()
+                .uri("localhost:8081/pedidos/{id}", idPedido)
+                .body(Mono.just(atualizarStatusPedidoDTO), AtualizarStatusPedidoDTO.class)
+                .retrieve();
     }
 }

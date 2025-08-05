@@ -32,7 +32,8 @@ public class PagamentoAPIController {
 
     @PostMapping("/gerar")
     public ResponseEntity<PagamentoDTO> gerarPagamento(@RequestBody CriarPagamentoDTO criarPagamentoDTO) throws Exception {
-        return ResponseEntity.ok(pagamentoController.gerarOrdemPagamento(criarPagamentoDTO));
+        PagamentoDTO pagamentoDTO = pagamentoController.gerarOrdemPagamento(criarPagamentoDTO);
+        return ResponseEntity.ok(pagamentoDTO);
     }
 
     @PostMapping("/fechar")

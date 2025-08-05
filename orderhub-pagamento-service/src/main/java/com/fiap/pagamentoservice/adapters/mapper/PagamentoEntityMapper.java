@@ -8,6 +8,7 @@ public class PagamentoEntityMapper {
     public static Pagamento entityToDomain(PagamentoEntity pagamentoEntity){
         return new Pagamento(
                 pagamentoEntity.getId(),
+                pagamentoEntity.getIdPedido(),
                 pagamentoEntity.getNomeCliente(),
                 pagamentoEntity.getEmailCliente(),
                 pagamentoEntity.getValorTotalOrdemPagamento(),
@@ -17,6 +18,7 @@ public class PagamentoEntityMapper {
     public static PagamentoEntity domainToEntity(Pagamento pagamento){
         return new PagamentoEntity(
                 pagamento.getId(),
+                pagamento.getIdPedido(),
                 pagamento.getNomeCliente(),
                 pagamento.getEmailCliente(),
                 pagamento.getValorTotalOrdemPagamento(),

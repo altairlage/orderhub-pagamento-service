@@ -12,6 +12,7 @@ public class PagamentoEntityMapperTest {
     void testEntityToDomain(){
         PagamentoEntity pagamentoEntity = new PagamentoEntity(
                 1L,
+                1L,
                 "Adamastor",
                 "email@email.com",
                 3999.0,

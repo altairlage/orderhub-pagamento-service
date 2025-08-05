@@ -31,6 +31,7 @@ public class PagamentoAPIControllerTest {
         Long id = 1L;
         PagamentoDTO pagamentoDTO = new PagamentoDTO(
                 1L,
+                1L,
                 "Adamastor",
                 "email@email.com",
                 3999.0,
@@ -57,12 +58,14 @@ public class PagamentoAPIControllerTest {
     @Test
     void deveGerarPagamentoComSucesso() throws Exception {
         CriarPagamentoDTO criarPagamentoDTO = new CriarPagamentoDTO(
+                1L,
                 "Adamastor",
                 "email@email.com",
                 3999.0,
                 StatusPagamento.EM_ABERTO
         );
         PagamentoDTO pagamentoDTO = new PagamentoDTO(
+                1L,
                 1L,
                 "Adamastor",
                 "email@email.com",
@@ -81,6 +84,7 @@ public class PagamentoAPIControllerTest {
     void deveFecharPagamentoComSucesso() {
         FecharPagamentoDTO fecharDTO = new FecharPagamentoDTO(1L, "FECHADO_COM_SUCESSO");
         PagamentoDTO pagamentoDTO = new PagamentoDTO(
+                1L,
                 1L,
                 "Adamastor",
                 "email@email.com",
